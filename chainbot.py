@@ -35,7 +35,7 @@ class SigningKey:
         return hashlib.sha256(bytes(vk)).hexdigest()[:40].upper()
 
 
-def tendermint_cfg(moniker, app_port, rpc_port, p2p_port, peers):
+def tendermint_cfg(moniker, hostname, app_port, rpc_port, p2p_port, peers):
     return {
         'proxy_app': 'tcp://127.0.0.1:%d' % app_port,
         'moniker': moniker,
@@ -54,7 +54,7 @@ def tendermint_cfg(moniker, app_port, rpc_port, p2p_port, peers):
         'prof_laddr': '',
         'filter_peers': False,
         'rpc': {
-            'laddr': 'tcp://127.0.0.1:%d' % rpc_port,
+            'laddr': 'tcp://%s:%d' % (hostname, rpc_port),
             'cors_allowed_origins': [],
             'cors_allowed_methods': [
                 'HEAD',
@@ -388,8 +388,9 @@ def gen_distribution(nodes):
 
 def gen_peers(cfgs):
     return ','.join(
-        'tcp://%s@0.0.0.0:%d' % (
+        'tcp://%s@%s:%d' % (
             SigningKey(cfg['node_seed']).validator_address().lower(),
+            cfg['hostname'],
             cfg['base_port'] + 6
         )
         for i, cfg in enumerate(cfgs)
@@ -426,6 +427,7 @@ async def init_cluster(cfg):
             patch.apply(
                 tendermint_cfg(
                     node_name,
+                    node['hostname'],
                     base_port + (i * 10) + 8,
                     base_port + (i * 10) + 7,
                     base_port + (i * 10) + 6,
@@ -471,7 +473,7 @@ class CLI:
             genesis_time="2019-11-20T08:56:48.618137Z",
             base_fee='0.0', per_byte_fee='0.0',
             base_port=26650, sgx_device=None,
-            chain_id='test-chain-y3m1e6-AB', root_path='./data'):
+            chain_id='test-chain-y3m1e6-AB', root_path='./data', hostname='127.0.0.1'):
         '''Generate testnet node specification
         :param count: Number of nodes, [default: 1].
         '''
@@ -488,6 +490,7 @@ class CLI:
             'nodes': [
                 {
                     'name': 'node%d' % i,
+                    'hostname': hostname.format(index=i),
                     'mnemonic': gen_mnemonic(),
                     'validator_seed': gen_seed(),
                     'node_seed': gen_seed(),
