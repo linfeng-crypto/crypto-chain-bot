@@ -78,7 +78,7 @@ class Wallet:
 
     def view_key(self, name=DEFAULT_WALLET):
         return call(
-            'wallet_getViewKey'
+            'wallet_getViewKey',
             [name, get_passphrase()]
         )
 
@@ -117,11 +117,11 @@ class Staking:
     def unbond_stake(self, address, amount, name=DEFAULT_WALLET):
         return call('staking_unbondStake', [name, get_passphrase()], fix_address(address), amount)
 
-    def withdraw_all_unbonded_stake(self, from_address, to_address, name=DEFAULT_WALLET):
+    def withdraw_all_unbonded_stake(self, from_address, to_address, view_keys=None, name=DEFAULT_WALLET):
         return call(
             'staking_withdrawAllUnbondedStake',
             [name, get_passphrase()],
-            fix_address(from_address), to_address, []
+            fix_address(from_address), to_address, view_keys or []
         )
 
     def unjail(self, address, name=DEFAULT_WALLET):
@@ -131,10 +131,10 @@ class Staking:
 class MultiSig:
     def create_address(self, public_keys, self_public_key, required_signatures, name=DEFAULT_WALLET):
         return call('multiSig_createAddress',
-                   [name, get_passphrase()],
-                   public_keys,
-                   self_public_key,
-                   required_signatures)
+                    [name, get_passphrase()],
+                    public_keys,
+                    self_public_key,
+                    required_signatures)
 
     def new_session(self, message, signer_public_keys, self_public_key, name=DEFAULT_WALLET):
         return call('multiSig_newSession',
