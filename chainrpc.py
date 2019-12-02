@@ -138,10 +138,10 @@ class MultiSig:
 
     def new_session(self, message, signer_public_keys, self_public_key, name=DEFAULT_WALLET):
         return call('multiSig_newSession',
-                   [name, get_passphrase()],
-                   message,
-                   signer_public_keys,
-                   self_public_key)
+                    [name, get_passphrase()],
+                    message,
+                    signer_public_keys,
+                    self_public_key)
 
     def nonce_commitment(self, session_id, passphrase):
         return call('multiSig_nonceCommitment', session_id, passphrase)
@@ -166,9 +166,9 @@ class MultiSig:
 
     def broadcast_with_signature(self, session_id, unsigned_transaction, name=DEFAULT_WALLET):
         return call('multiSig_broadcastWithSignature',
-                   [name, get_passphrase()],
-                   session_id,
-                   unsigned_transaction)
+                    [name, get_passphrase()],
+                    session_id,
+                    unsigned_transaction)
 
 
 class Blockchain:
@@ -187,9 +187,8 @@ class Blockchain:
     def latest_height(self):
         return self.status()['sync_info']['latest_block_height']
 
-    def validators(self, height='latest'):
-        height = height if height != 'latest' else self.latest_height()
-        return call_chain('validators', str(height))
+    def validators(self, height=None):
+        return call_chain('validators', str(height) if height is not None else None)
 
     def block(self, height='latest'):
         height = height if height != 'latest' else self.latest_height()
