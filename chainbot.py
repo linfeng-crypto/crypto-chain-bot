@@ -469,17 +469,34 @@ async def populate_wallet_addresses(nodes):
 
 
 class CLI:
-    def gen(self, count=1, rewards_pool=0,
+    def gen(self,
+            count=1,
+            rewards_pool=0,
             genesis_time="2019-11-20T08:56:48.618137Z",
-            base_fee='0.0', per_byte_fee='0.0',
-            base_port=26650, sgx_device=None,
-            chain_id='test-chain-y3m1e6-AB', root_path='./data', hostname='127.0.0.1'):
+            base_fee='0.0',
+            per_byte_fee='0.0',
+            base_port=26650,
+            sgx_device='',
+            hw=False,
+            chain_id='test-chain-y3m1e6-AB',
+            root_path='./data',
+            hostname='127.0.0.1'):
         '''Generate testnet node specification
         :param count: Number of nodes, [default: 1].
         '''
         max_coin = 10000000000000000000
         share = int(int(max_coin - rewards_pool) / count / 2)
-        sgx_mode = '' if sgx_device else '-sw'
+        sgx_mode = ''
+        if hw or sgx_device:
+            if not sgx_device:
+                sgx_device = '/dev/isgx'
+            try:
+                os.stat(sgx_device)
+            except Exception:
+                print('error: sgx driver not installed!')
+                return
+        else:
+            sgx_mode = '-sw'
         cfg = {
             'root_path': root_path,
             'chain_id': chain_id,
