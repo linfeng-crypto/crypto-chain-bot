@@ -481,7 +481,7 @@ class CLI:
         share = int(int(max_coin - rewards_pool) / count / 2)
         sgx_mode = '' if sgx_device else '-sw'
         cfg = {
-            'root_path': './data',
+            'root_path': root_path,
             'chain_id': chain_id,
             'sgx_device': sgx_device,
             'enclave_docker_image': 'integration-tests-chain-tx-enclave' + sgx_mode,
